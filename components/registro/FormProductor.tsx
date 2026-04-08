@@ -1,0 +1,470 @@
+'use client'
+
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const ACCENT = '#FF6B35'
+
+interface FormData {
+  nombre: string
+  apellido: string
+  email: string
+  whatsapp: string
+  nombreMarca: string
+  categoria: string
+  skus: string
+  ticket: string
+  canalesVenta: string[]
+  frustracion: string
+  numTiendas: string
+  zona: string
+  descripcion: string
+  instagram: string
+}
+
+const INITIAL: FormData = {
+  nombre: '', apellido: '', email: '', whatsapp: '',
+  nombreMarca: '', categoria: '', skus: '', ticket: '',
+  canalesVenta: [],
+  frustracion: '',
+  numTiendas: '', zona: '',
+  descripcion: '', instagram: '',
+}
+
+const CANALES = [
+  'Instagram / TikTok',
+  'E-commerce propio',
+  'Mercado Libre / Amazon',
+  'Tiendas independientes',
+  'Cadenas grandes',
+  'Mercados / bazares',
+]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-components
+// ─────────────────────────────────────────────────────────────────────────────
+
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label
+        className="font-dm font-medium"
+        style={{ fontSize: '13px', color: '#F0EFE8' }}
+      >
+        {label}{required && <span style={{ color: ACCENT }}> *</span>}
+      </label>
+      {children}
+    </div>
+  )
+}
+
+function Divider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3 my-2">
+      <span
+        className="font-dm font-medium shrink-0"
+        style={{ fontSize: '10px', letterSpacing: '0.18em', color: ACCENT }}
+      >
+        {label}
+      </span>
+      <div className="flex-1 h-px" style={{ background: 'rgba(255,107,53,0.25)' }} />
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared input styles
+// ─────────────────────────────────────────────────────────────────────────────
+
+const inputBase: React.CSSProperties = {
+  width: '100%',
+  background: '#0A0A0F',
+  border: '1px solid rgba(240,239,232,0.15)',
+  borderRadius: '8px',
+  padding: '12px 16px',
+  fontFamily: 'var(--font-dm-sans)',
+  fontWeight: 300,
+  fontSize: '14px',
+  color: '#F0EFE8',
+  outline: 'none',
+  transition: 'border-color 0.2s ease',
+}
+
+const placeholderColor = 'rgba(240,239,232,0.3)'
+
+function onFocusOrange(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  e.currentTarget.style.borderColor = ACCENT
+}
+function onBlurReset(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  e.currentTarget.style.borderColor = 'rgba(240,239,232,0.15)'
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main component
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function FormProductor({ onSuccess }: { onSuccess: () => void }) {
+  const [form, setForm] = useState<FormData>(INITIAL)
+  const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+
+  const update =
+    (key: keyof FormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }))
+
+  const toggleCanal = (canal: string) => {
+    setForm((f) => ({
+      ...f,
+      canalesVenta: f.canalesVenta.includes(canal)
+        ? f.canalesVenta.filter((c) => c !== canal)
+        : [...f.canalesVenta, canal],
+    }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setTimeout(() => {
+      const existing = JSON.parse(localStorage.getItem('suuplai_registros') || '[]') as unknown[]
+      localStorage.setItem(
+        'suuplai_registros',
+        JSON.stringify([...existing, { tipo: 'productor', timestamp: Date.now(), ...form }])
+      )
+      setLoading(false)
+      setSubmitted(true)
+      onSuccess()
+    }, 800)
+  }
+
+  return (
+    <AnimatePresence mode="wait">
+      {submitted ? (
+        <motion.div
+          key="success"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center justify-center gap-6 py-20 text-center px-8 rounded-card"
+          style={{
+            background: '#13131A',
+            border: '1px solid rgba(240,239,232,0.08)',
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(255,107,53,0.12)', border: '1px solid rgba(255,107,53,0.3)' }}
+          >
+            <svg width="28" height="22" viewBox="0 0 28 22" fill="none">
+              <path d="M2 11L10 19L26 3" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h2
+            className="font-syne font-extrabold"
+            style={{ fontSize: '28px', color: ACCENT, letterSpacing: '-0.5px' }}
+          >
+            ¡Estás en la waitlist!
+          </h2>
+          <p
+            className="font-dm max-w-sm"
+            style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.6, color: 'rgba(240,239,232,0.7)' }}
+          >
+            Revisamos tu marca en menos de 48h. Si hay fit, agendamos una llamada de 20 minutos
+            para activar tu primer slot.
+          </p>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="form"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="p-8 md:p-12 rounded-card"
+          style={{
+            background: '#13131A',
+            border: '1px solid rgba(240,239,232,0.08)',
+          }}
+        >
+          <h2
+            className="font-syne font-extrabold mb-2"
+            style={{ fontSize: '28px', letterSpacing: '-0.5px', color: '#F0EFE8' }}
+          >
+            Únete a la waitlist
+          </h2>
+          <p
+            className="font-dm mb-8"
+            style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(240,239,232,0.55)' }}
+          >
+            Cuéntanos sobre tu marca. Revisamos cada solicitud personalmente — confirmamos tu lugar
+            en menos de 48h.
+          </p>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <Divider label="DATOS DE CONTACTO" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Nombre" required>
+                <input
+                  type="text"
+                  value={form.nombre}
+                  onChange={update('nombre')}
+                  required
+                  placeholder="Tu nombre"
+                  style={inputBase}
+                  onFocus={onFocusOrange}
+                  onBlur={onBlurReset}
+                  className="placeholder-shown:[color:rgba(240,239,232,0.3)]"
+                />
+              </Field>
+              <Field label="Apellido" required>
+                <input
+                  type="text"
+                  value={form.apellido}
+                  onChange={update('apellido')}
+                  required
+                  placeholder="Tu apellido"
+                  style={inputBase}
+                  onFocus={onFocusOrange}
+                  onBlur={onBlurReset}
+                />
+              </Field>
+            </div>
+
+            <Field label="Email" required>
+              <input
+                type="email"
+                value={form.email}
+                onChange={update('email')}
+                required
+                placeholder="tu@email.com"
+                style={inputBase}
+                onFocus={onFocusOrange}
+                onBlur={onBlurReset}
+              />
+            </Field>
+
+            <Field label="WhatsApp" required>
+              <input
+                type="tel"
+                value={form.whatsapp}
+                onChange={update('whatsapp')}
+                required
+                placeholder="+52 55 1234 5678"
+                style={inputBase}
+                onFocus={onFocusOrange}
+                onBlur={onBlurReset}
+              />
+            </Field>
+
+            <Divider label="TU MARCA" />
+
+            <Field label="Nombre de tu marca" required>
+              <input
+                type="text"
+                value={form.nombreMarca}
+                onChange={update('nombreMarca')}
+                required
+                placeholder="El nombre de tu marca"
+                style={inputBase}
+                onFocus={onFocusOrange}
+                onBlur={onBlurReset}
+              />
+            </Field>
+
+            <Field label="Categoría principal" required>
+              <select
+                value={form.categoria}
+                onChange={update('categoria')}
+                required
+                style={{ ...inputBase, appearance: 'none', cursor: 'pointer', color: form.categoria ? '#F0EFE8' : placeholderColor }}
+                onFocus={onFocusOrange}
+                onBlur={onBlurReset}
+              >
+                <option value="" style={{ color: '#555' }}>Selecciona una opción</option>
+                <option style={{ color: '#111' }}>Alimentos y bebidas</option>
+                <option style={{ color: '#111' }}>Salsas/condimentos</option>
+                <option style={{ color: '#111' }}>Snacks/botanas</option>
+                <option style={{ color: '#111' }}>Bebidas funcionales</option>
+                <option style={{ color: '#111' }}>Cosméticos y skincare</option>
+                <option style={{ color: '#111' }}>Wellness y suplementos</option>
+                <option style={{ color: '#111' }}>Moda y accesorios</option>
+                <option style={{ color: '#111' }}>Libros y papelería</option>
+                <option style={{ color: '#111' }}>Arte y diseño</option>
+                <option style={{ color: '#111' }}>Otro</option>
+              </select>
+            </Field>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="¿Cuántos SKUs tienes activos?">
+                <select
+                  value={form.skus}
+                  onChange={update('skus')}
+                  style={{ ...inputBase, appearance: 'none', cursor: 'pointer', color: form.skus ? '#F0EFE8' : placeholderColor }}
+                  onFocus={onFocusOrange}
+                  onBlur={onBlurReset}
+                >
+                  <option value="" style={{ color: '#555' }}>Selecciona</option>
+                  <option style={{ color: '#111' }}>1–3</option>
+                  <option style={{ color: '#111' }}>4–10</option>
+                  <option style={{ color: '#111' }}>11–20</option>
+                  <option style={{ color: '#111' }}>Más de 20</option>
+                </select>
+              </Field>
+              <Field label="Precio / ticket promedio">
+                <select
+                  value={form.ticket}
+                  onChange={update('ticket')}
+                  style={{ ...inputBase, appearance: 'none', cursor: 'pointer', color: form.ticket ? '#F0EFE8' : placeholderColor }}
+                  onFocus={onFocusOrange}
+                  onBlur={onBlurReset}
+                >
+                  <option value="" style={{ color: '#555' }}>Selecciona</option>
+                  <option style={{ color: '#111' }}>Menos de $50</option>
+                  <option style={{ color: '#111' }}>$50–$150</option>
+                  <option style={{ color: '#111' }}>$150–$350</option>
+                  <option style={{ color: '#111' }}>$350–$800</option>
+                  <option style={{ color: '#111' }}>Más de $800</option>
+                </select>
+              </Field>
+            </div>
+
+            <Divider label="TU SITUACIÓN ACTUAL" />
+
+            {/* Canales de venta — checkbox grid */}
+            <Field label="¿Dónde vendes actualmente?">
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                {CANALES.map((canal) => {
+                  const checked = form.canalesVenta.includes(canal)
+                  return (
+                    <button
+                      key={canal}
+                      type="button"
+                      onClick={() => toggleCanal(canal)}
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-card text-left transition-all duration-150"
+                      style={{
+                        background: checked ? 'rgba(255,107,53,0.1)' : '#0A0A0F',
+                        border: `1px solid ${checked ? ACCENT : 'rgba(240,239,232,0.12)'}`,
+                        color: checked ? '#F0EFE8' : 'rgba(240,239,232,0.55)',
+                      }}
+                    >
+                      <span
+                        className="w-4 h-4 rounded shrink-0 flex items-center justify-center transition-all"
+                        style={{
+                          background: checked ? ACCENT : 'transparent',
+                          border: `1.5px solid ${checked ? ACCENT : 'rgba(240,239,232,0.3)'}`,
+                        }}
+                      >
+                        {checked && (
+                          <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                            <path d="M1 3.5L3.2 6L8 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="font-dm" style={{ fontSize: '13px' }}>{canal}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </Field>
+
+            <Field label="¿Cuál es tu principal frustración con el retail actual?">
+              <select
+                value={form.frustracion}
+                onChange={update('frustracion')}
+                style={{ ...inputBase, appearance: 'none', cursor: 'pointer', color: form.frustracion ? '#F0EFE8' : placeholderColor }}
+                onFocus={onFocusOrange}
+                onBlur={onBlurReset}
+              >
+                <option value="" style={{ color: '#555' }}>Selecciona</option>
+                <option style={{ color: '#111' }}>Slotting fees y barreras de entrada altísimas</option>
+                <option style={{ color: '#111' }}>No tengo datos de quién me compra ni dónde roto mejor</option>
+                <option style={{ color: '#111' }}>Mi margen se destruye con logística y penalizaciones</option>
+                <option style={{ color: '#111' }}>Tardo meses en entrar y años en ver resultados</option>
+                <option style={{ color: '#111' }}>Me pierdo entre cientos de productos similares</option>
+                <option style={{ color: '#111' }}>No puedo testear SKUs nuevos sin arriesgar mucho</option>
+              </select>
+            </Field>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="¿En cuántas tiendas quieres entrar?">
+                <select
+                  value={form.numTiendas}
+                  onChange={update('numTiendas')}
+                  style={{ ...inputBase, appearance: 'none', cursor: 'pointer', color: form.numTiendas ? '#F0EFE8' : placeholderColor }}
+                  onFocus={onFocusOrange}
+                  onBlur={onBlurReset}
+                >
+                  <option value="" style={{ color: '#555' }}>Selecciona</option>
+                  <option style={{ color: '#111' }}>1–3 (prueba)</option>
+                  <option style={{ color: '#111' }}>4–10</option>
+                  <option style={{ color: '#111' }}>11–20</option>
+                  <option style={{ color: '#111' }}>20+</option>
+                </select>
+              </Field>
+              <Field label="¿En qué zona de CDMX?">
+                <select
+                  value={form.zona}
+                  onChange={update('zona')}
+                  style={{ ...inputBase, appearance: 'none', cursor: 'pointer', color: form.zona ? '#F0EFE8' : placeholderColor }}
+                  onFocus={onFocusOrange}
+                  onBlur={onBlurReset}
+                >
+                  <option value="" style={{ color: '#555' }}>Selecciona</option>
+                  <option style={{ color: '#111' }}>Roma/Condesa</option>
+                  <option style={{ color: '#111' }}>Polanco/Lomas</option>
+                  <option style={{ color: '#111' }}>Coyoacán/Del Valle</option>
+                  <option style={{ color: '#111' }}>Santa Fe/Interlomas</option>
+                  <option style={{ color: '#111' }}>Narvarte/Doctores</option>
+                  <option style={{ color: '#111' }}>Toda la ciudad</option>
+                </select>
+              </Field>
+            </div>
+
+            <Field label="Cuéntanos sobre tu producto" required>
+              <textarea
+                value={form.descripcion}
+                onChange={update('descripcion')}
+                required
+                rows={4}
+                placeholder="¿Qué lo hace especial? ¿Quién es tu cliente típico? ¿Por qué encajaría en Suuplai?"
+                style={{ ...inputBase, resize: 'vertical' }}
+                onFocus={onFocusOrange}
+                onBlur={onBlurReset}
+              />
+            </Field>
+
+            <Field label="Instagram o sitio web de tu marca">
+              <input
+                type="url"
+                value={form.instagram}
+                onChange={update('instagram')}
+                placeholder="https://instagram.com/tumarca"
+                style={inputBase}
+                onFocus={onFocusOrange}
+                onBlur={onBlurReset}
+              />
+            </Field>
+
+            {/* Submit */}
+            <div className="flex flex-col gap-3 mt-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 rounded-pill font-syne font-bold text-base transition-all duration-200 disabled:opacity-60"
+                style={{ background: ACCENT, color: '#0A0A0F', border: 'none' }}
+                onMouseEnter={(e) => { if (!loading) e.currentTarget.style.opacity = '0.9' }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+              >
+                {loading ? 'Guardando tu lugar...' : 'Asegurar mi lugar en la waitlist →'}
+              </button>
+              <p
+                className="font-dm text-center"
+                style={{ fontSize: '11px', color: 'rgba(240,239,232,0.35)' }}
+              >
+                Sin costo. Cupos limitados. Confirmamos tu lugar en menos de 48h.
+              </p>
+            </div>
+          </form>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}

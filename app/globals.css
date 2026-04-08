@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Leaflet core CSS */
+@import 'leaflet/dist/leaflet.css';
+
+:root {
+  --font-syne: 'Syne', sans-serif;
+  --font-dm-sans: 'DM Sans', sans-serif;
+  --font-space-mono: 'Space Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: #0A0A0F;
+  color: #F0EFE8;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0F;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a35;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a45;
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+/* Pulse dot animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* ─── Hero "All of the Lights" title animation ─────────────────────────────── */
+
+/* Word 1: white → yellow → white → orange → white */
+@keyframes colorFlash1 {
+  0%   { color: #F0EFE8; }
+  15%  { color: #E8FF47; text-shadow: 0 0 40px rgba(232,255,71,0.6); }
+  30%  { color: #F0EFE8; text-shadow: none; }
+  50%  { color: #E8FF47; text-shadow: 0 0 60px rgba(232,255,71,0.4); }
+  65%  { color: #F0EFE8; }
+  80%  { color: #FF6B35; text-shadow: 0 0 30px rgba(255,107,53,0.5); }
+  92%  { color: #F0EFE8; text-shadow: none; }
+  100% { color: #F0EFE8; }
+}
+
+/* Word 2: yellow → orange → yellow → white → yellow */
+@keyframes colorFlash2 {
+  0%   { color: #E8FF47; }
+  20%  { color: #FF6B35; text-shadow: 0 0 50px rgba(255,107,53,0.5); }
+  35%  { color: #E8FF47; text-shadow: 0 0 70px rgba(232,255,71,0.5); }
+  55%  { color: #F0EFE8; text-shadow: none; }
+  68%  { color: #E8FF47; text-shadow: 0 0 40px rgba(232,255,71,0.6); }
+  82%  { color: #FF6B35; text-shadow: 0 0 35px rgba(255,107,53,0.4); }
+  95%  { color: #E8FF47; text-shadow: none; }
+  100% { color: #E8FF47; }
+}
+
+/* Word 3: orange → white → orange → yellow → orange */
+@keyframes colorFlash3 {
+  0%   { color: #FF6B35; }
+  18%  { color: #F0EFE8; text-shadow: none; }
+  33%  { color: #FF6B35; text-shadow: 0 0 55px rgba(255,107,53,0.6); }
+  48%  { color: #E8FF47; text-shadow: 0 0 40px rgba(232,255,71,0.4); }
+  62%  { color: #FF6B35; text-shadow: 0 0 45px rgba(255,107,53,0.5); }
+  77%  { color: #F0EFE8; text-shadow: none; }
+  90%  { color: #FF6B35; text-shadow: 0 0 30px rgba(255,107,53,0.4); }
+  100% { color: #FF6B35; }
+}
+
+.hero-word-1 {
+  display: inline;
+  animation: colorFlash1 4s ease-in-out infinite;
+}
+.hero-word-2 {
+  display: inline;
+  animation: colorFlash2 4s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+.hero-word-3 {
+  display: inline;
+  animation: colorFlash3 4s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
+/* Badge dot — alternates yellow ↔ orange */
+@keyframes dotPulse {
+  0%, 100% { background: #E8FF47; box-shadow: 0 0 0 0 rgba(232,255,71,0.4); }
+  50%       { background: #FF6B35; box-shadow: 0 0 0 5px rgba(255,107,53,0); }
+}
+.hero-badge-dot {
+  animation: dotPulse 2.5s ease-in-out infinite;
+}
+
+/* Stat card progress bar */
+@keyframes statProgress {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none !important;
+  }
+  .hero-word-1,
+  .hero-word-2,
+  .hero-word-3 {
+    animation: none !important;
+  }
+  .hero-word-1 { color: #F0EFE8; }
+  .hero-word-2 { color: #E8FF47; }
+  .hero-word-3 { color: #FF6B35; }
+  .hero-badge-dot {
+    animation: none !important;
+    background: #E8FF47;
+  }
+}
+
+/* Input range custom styles */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Tienda slider */
+.slider-tienda {
+  background: linear-gradient(to right, #E8FF47 var(--progress, 0%), rgba(232,255,71,0.15) var(--progress, 0%));
+}
+.slider-tienda::-webkit-slider-thumb {
+  background: #E8FF47;
+  box-shadow: 0 0 8px rgba(232,255,71,0.5);
+}
+
+/* Productor slider */
+.slider-productor {
+  background: linear-gradient(to right, #FF6B35 var(--progress, 0%), rgba(255,107,53,0.15) var(--progress, 0%));
+}
+.slider-productor::-webkit-slider-thumb {
+  background: #FF6B35;
+  box-shadow: 0 0 8px rgba(255,107,53,0.5);
+}
+
+/* Map SVG hover */
+.map-point {
+  transition: transform 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.map-point:hover {
+  transform-origin: center;
+  transform: scale(1.5);
+  filter: drop-shadow(0 0 8px rgba(255,107,53,0.8));
+}
+
+/* Form focus states */
+.input-tienda:focus {
+  outline: none;
+  border-color: #E8FF47;
+  box-shadow: 0 0 0 2px rgba(232,255,71,0.15);
+}
+
+.input-productor:focus {
+  outline: none;
+  border-color: #1a8c5c;
+  box-shadow: 0 0 0 2px rgba(26,140,92,0.15);
+}
+
+/* Leaflet dark theme overrides */
+.leaflet-container {
+  background: #13131A;
+  font-family: var(--font-dm-sans), sans-serif;
+}
+.leaflet-control-zoom a {
+  background: #13131A !important;
+  color: #F0EFE8 !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #1e1e28 !important;
+}
+.leaflet-control-attribution {
+  background: rgba(10,10,15,0.7) !important;
+  color: #7A7A8A !important;
+  font-size: 10px !important;
+}
+.leaflet-control-attribution a {
+  color: #7A7A8A !important;
+}
+/* Popup override — styling is done inline in the popup HTML */
+.suuplai-popup .leaflet-popup-content-wrapper {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.suuplai-popup .leaflet-popup-tip-container {
+  display: none !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+}
