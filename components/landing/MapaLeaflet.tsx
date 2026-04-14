@@ -108,13 +108,13 @@ export function MapaLeaflet({ activeZone }: MapaLeafletProps) {
           }
         )
 
-        circleMarker.on('mouseover', function () {
-          this.openPopup()
-          this.setStyle({ radius: 14, fillColor: '#FF9A73' })
+        circleMarker.on('mouseover', () => {
+          circleMarker.openPopup()
+          circleMarker.setStyle({ radius: 14, fillColor: '#FF9A73' })
         })
-        circleMarker.on('mouseout', function () {
-          this.closePopup()
-          this.setStyle({ radius: 10, fillColor: '#FF6B35' })
+        circleMarker.on('mouseout', () => {
+          circleMarker.closePopup()
+          circleMarker.setStyle({ radius: 10, fillColor: '#FF6B35' })
         })
       })
     })
